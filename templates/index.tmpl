@@ -1,0 +1,42 @@
+{{define "pageStart"}}
+	<!DOCTYPE html>
+	<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>gopresent.io</title>
+		<style>
+			#mentor-image { margin: 20px }
+			#container {
+				width: 100%;
+				text-align: center;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="container">
+{{end}}
+
+{{define "pageEnd"}}
+		</div>
+	</body>
+	</html>
+{{end}}
+
+{{define "index"}}
+	{{template "pageStart"}}
+	<!-- TODO: resize this actually -->
+	<img id="mentor-image" src="/static/gomentor.png" width="210" /><br />
+	<form action="/upload" method="post" enctype="multipart/form-data">
+		<input type="file" name="filename" accept=".slide">
+		<input type="submit">
+	</form>
+	{{template "pageEnd"}}
+{{end}}
+
+{{define "upload"}}
+	{{template "pageStart"}}
+	Upload completed! Your URL is:
+	<pre>{{.URL}}</pre>
+	It is valid for {{.Hours}} hours.
+	{{template "pageEnd"}}
+{{end}}
