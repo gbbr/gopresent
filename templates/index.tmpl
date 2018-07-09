@@ -10,6 +10,14 @@
 				width: 100%;
 				text-align: center;
 			}
+			.details {
+				width: 100%;
+				max-width: 800px;
+				font-family: Verdana;
+				font-size: 13px;
+				line-height: 19px;
+				margin: 20px auto 0 auto;
+			}
 		</style>
 	</head>
 	<body>
@@ -25,11 +33,25 @@
 {{define "index"}}
 	{{template "pageStart"}}
 	<!-- TODO: resize this actually -->
+	<h1>gopresent.io</h1>
 	<img id="mentor-image" src="/static/gomentor.png" width="210" /><br />
 	<form action="/upload" method="post" enctype="multipart/form-data">
 		<input type="file" name="filename" accept=".slide">
 		<input type="submit">
 	</form>
+	<div class="details">
+		This site exposes a simple way to create and present slides. Creating slides
+		using well known applications can end up being a tedious process diverting your attention
+		from focusing on content towards focusing on irrelevant detail.
+
+		By using the great format provided by the developers of the Go language, you can now
+		create slides by using a simplified language similar to a simplified Markdown. Click
+		<a href="https://godoc.org/golang.org/x/tools/present" target="_blank">here</a> to learn more
+		about this format.
+
+		<br><br>Simply upload a "*.slide" file and obtain a link to a rendered version of it which you
+		can use for the next 48 hours.
+	</div>
 	{{template "pageEnd"}}
 {{end}}
 
