@@ -8,5 +8,6 @@ import (
 )
 
 func main() {
-	log.Fatal(http.ListenAndServe(":8080", gopresent.Handler()))
+	opts := gopresent.Options{}
+	log.Fatal(http.ListenAndServe(":8080", gopresent.NewApp(opts)))
 }
