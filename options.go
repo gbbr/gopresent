@@ -9,6 +9,17 @@ import (
 	"path/filepath"
 )
 
+const (
+	// defaultMaxFileSize specifies the default maximum allowed file size for a slide.
+	defaultMaxFileSize = 1e5 // 100K
+
+	// defaultMaxHours defines the default maximum number of hours before a slide is deleted.
+	defaultMaxHours = 48
+
+	// defaultMaxQuota defines the default maximum disk quota that the app is allowed to use.
+	defaultMaxQuota = 1e8 // 100M
+)
+
 // thisPackage defines the name of this package.
 const thisPackage = "github.com/gbbr/gopresent"
 

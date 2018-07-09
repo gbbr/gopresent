@@ -11,20 +11,9 @@ import (
 	"golang.org/x/tools/present"
 )
 
-const (
-	// defaultMaxFileSize specifies the default maximum allowed file size for a slide.
-	defaultMaxFileSize = 1e5 // 100K
-
-	// defaultMaxHours defines the default maximum number of hours before a slide is deleted.
-	defaultMaxHours = 48
-
-	// defaultMaxQuota defines the default maximum disk quota that the app is allowed to use.
-	defaultMaxQuota = 1e8 // 100M
-
-	// checkFrequency specifies the frequency at which the storage will be checked
-	// for expired slides
-	checkFrequency = time.Hour
-)
+// checkFrequency specifies the frequency at which the storage will be checked
+// for expired slides
+const checkFrequency = time.Hour
 
 // app is the gopresent.io application.
 type app struct {

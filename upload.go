@@ -18,10 +18,10 @@ import (
 // handleUpload is the handler for the upload page.
 func (a *app) handleUpload(w http.ResponseWriter, r *http.Request) error {
 	f, h, err := r.FormFile("filename")
-	defer f.Close()
 	if err != nil {
-		return errors.New("not found")
+		return errors.New("nothing received")
 	}
+	defer f.Close()
 	if h.Size > a.opts.MaxFileSize {
 		return errors.New("maximum file size is 100KB")
 	}
