@@ -253,10 +253,9 @@
 /* Styles for slides */
 
 .slides > article {
-  font-family: 'Open Sans', Arial, sans-serif;
+  font-family: Helvetica, 'Open Sans', Arial, sans-serif;
 
   color: black;
-  text-shadow: 0 1px 1px rgba(0, 0, 0, .1);
 
   font-size: 26px;
   line-height: 36px;
@@ -352,13 +351,19 @@ li {
 
 div.code {
   padding: 5px 10px;
-  margin-top: 20px;
-  margin-bottom: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
   overflow: hidden;
 
   background: rgb(240, 240, 240);
   border: 1px solid rgb(224, 224, 224);
 }
+
+div.code > pre {
+     font-family: Consolas, Inconsolata, Verdana;
+	line-height: 24px;
+}
+
 pre {
   margin: 0;
   padding: 0;
@@ -378,8 +383,11 @@ pre.numbers span:before {
 }
 
 code {
-  font-size: 95%;
+  font-size: 82%;
   font-family: 'Droid Sans Mono', 'Courier New', monospace;
+  background: rgb(245, 245, 245);
+  border: 1px solid rgb(240, 240, 240);
+  padding: 0 5px 3px 5px;
 
   color: black;
 }
