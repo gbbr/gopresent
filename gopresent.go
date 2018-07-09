@@ -21,18 +21,18 @@ import (
 )
 
 const (
-	// maxFileSize specifies the maximum allowed file size for a slide.
-	maxFileSize = 1e5 // 100K
+	// defaultMaxFileSize specifies the default maximum allowed file size for a slide.
+	defaultMaxFileSize = 1e5 // 100K
+
+	// defaultMaxHours defines the default maximum number of hours before a slide is deleted.
+	defaultMaxHours = 48
+
+	// defaultMaxQuota defines the default maximum disk quota that the app is allowed to use.
+	defaultMaxQuota = 1e8 // 100M
 
 	// checkFrequency specifies the frequency at which the storage will be checked
 	// for expired slides
 	checkFrequency = time.Hour
-
-	// maxHours defines the maximum number of hours before a slide is deleted.
-	maxHours = 48
-
-	// maxQuota defines the maximum disk quota that the app is allowed to use.
-	maxQuota = 1e8 // 100M
 )
 
 // thisPackage defines the name of this package.
@@ -50,9 +50,9 @@ type app struct {
 	present *template.Template
 }
 
-// writeTemplate writes the template specifies by name to w using the given data. It returns an error
+// serveTemplate writes the template specifies by name to w using the given data. It returns an error
 // if it fails. It does not write anything to w on error.
-func (a *app) writeTemplate(w http.ResponseWriter, name string, data interface{}) error {
+func (a *app) serveTemplate(w http.ResponseWriter, name string, data interface{}) error {
 	var out bytes.Buffer
 	// write to a buffer first to avoid writing the HTTP headers in case of an error
 	err := a.pages.ExecuteTemplate(&out, name, data)
@@ -92,7 +92,7 @@ func (a *app) removeExpired() error {
 			// skip
 			return nil
 		}
-		if time.Since(fi.ModTime()) > maxHours*time.Hour {
+		if time.Since(fi.ModTime()) > time.Duration(a.opts.MaxHours)*time.Hour {
 			if err := os.Remove(path); err != nil {
 				log.Println(err)
 				// we've failed deleting this file, but we should try
@@ -110,8 +110,8 @@ func (a *app) writeSlide(key string, data []byte) error {
 	if err != nil {
 		return err
 	}
-	if fi.Size() > maxQuota {
-		log.Printf("disk quota exceeded: %d > %d\n", fi.Size(), int(maxQuota))
+	if fi.Size() > a.opts.MaxQuota {
+		log.Printf("disk quota exceeded: %d > %d\n", fi.Size(), int(a.opts.MaxQuota))
 		return errors.New("disk quota exceeded")
 	}
 	return ioutil.WriteFile(filepath.Join(slidePath, key), data, os.ModePerm)
@@ -119,7 +119,7 @@ func (a *app) writeSlide(key string, data []byte) error {
 
 // handleIndex is the handler for the root page.
 func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) error {
-	return a.writeTemplate(w, "index", nil)
+	return a.serveTemplate(w, "index", nil)
 }
 
 // handleSlide is the handler for the page serving slides.
@@ -156,7 +156,7 @@ func (a *app) handleUpload(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return errors.New("not found")
 	}
-	if h.Size > maxFileSize {
+	if h.Size > a.opts.MaxFileSize {
 		return errors.New("maximum file size is 100KB")
 	}
 	slurp, err := ioutil.ReadAll(f)
@@ -172,12 +172,12 @@ func (a *app) handleUpload(w http.ResponseWriter, r *http.Request) error {
 		// even if it exists, we write again to update ModTime
 		return err
 	}
-	return a.writeTemplate(w, "upload", struct {
+	return a.serveTemplate(w, "upload", struct {
 		URL   string
 		Hours string
 	}{
 		URL:   fmt.Sprintf("https://gopresent.io/slide/%s", key),
-		Hours: strconv.Itoa(maxHours),
+		Hours: strconv.Itoa(a.opts.MaxHours),
 	})
 }
 
@@ -204,13 +204,23 @@ type Options struct {
 	// StorageRoot specifies the path used for storage. A folder called ".gopresent" will be
 	// created at this path. If empty, it defaults to the user's home directory.
 	StorageRoot string
+
+	// MaxFileSize specifies the maximum file size allowed for an uploaded slide. It defaults
+	// to 100Kb.
+	MaxFileSize int64
+
+	// MaxHours specifies the number of hours after which a slide will be considered expired
+	// and will be evicted.
+	MaxHours int
+
+	// MaxQuota specifies the maximum disk quota allowed to the application. If it is surpassed
+	// no more files will be uploaded and an error will be returned. It defaults to 100Mb.
+	MaxQuota int64
 }
 
-// NewApp returns an http.Handler that will serve the app. An empty set of options
-// can (and usually should) be provided in order to use the defaults.
-func NewApp(opts Options) http.Handler {
+// prepare applies the default values to any unset Options fields.
+func (opts *Options) prepare() {
 	if opts.WebRoot == "" {
-		// web root not set, try default
 		p, err := build.Default.Import(thisPackage, "", build.FindOnly)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Couldn't find gopresent files: %v\n", err)
@@ -219,7 +229,6 @@ func NewApp(opts Options) http.Handler {
 		opts.WebRoot = p.Dir
 	}
 	if opts.StorageRoot == "" {
-		// storage not set, try default
 		u, err := user.Current()
 		if err != nil {
 			log.Fatal(err)
@@ -234,6 +243,22 @@ func NewApp(opts Options) http.Handler {
 		}
 		opts.StorageRoot = storagePath
 	}
+	if opts.MaxFileSize == 0 {
+		opts.MaxFileSize = defaultMaxFileSize
+	}
+	if opts.MaxHours == 0 {
+		opts.MaxHours = defaultMaxHours
+	}
+	if opts.MaxQuota == 0 {
+		opts.MaxQuota = defaultMaxQuota
+	}
+}
+
+// NewApp returns an http.Handler that will serve the app. An empty set of options
+// can (and usually should) be provided in order to use the defaults.
+func NewApp(opts Options) http.Handler {
+	opts.prepare()
+
 	a := &app{
 		opts: &opts,
 		pages: template.Must(template.New("gopresent.io").ParseFiles(
