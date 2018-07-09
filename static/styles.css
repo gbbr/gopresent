@@ -360,7 +360,7 @@ div.code {
 }
 
 div.code > pre {
-     font-family: Consolas, Inconsolata, Verdana;
+     font-family: Consolas;
 	line-height: 24px;
 }
 
