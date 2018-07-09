@@ -103,11 +103,6 @@ func (a *app) removeExpired() error {
 	})
 }
 
-// getSlide returns the slide having the given key.
-func (a *app) getSlide(key string) ([]byte, error) {
-	return ioutil.ReadFile(filepath.Join(a.opts.StorageRoot, "slides", key))
-}
-
 // writeSlide writes the slide with the given key, containing the given data to disk.
 func (a *app) writeSlide(key string, data []byte) error {
 	slidePath := filepath.Join(a.opts.StorageRoot, "slides")
@@ -133,7 +128,7 @@ func (a *app) handleSlide(w http.ResponseWriter, r *http.Request) error {
 	if len(key) == 0 {
 		return errors.New("not found")
 	}
-	content, err := a.getSlide(key)
+	content, err := ioutil.ReadFile(filepath.Join(a.opts.StorageRoot, "slides", key))
 	if os.IsNotExist(err) {
 		return errors.New("not found")
 	}
