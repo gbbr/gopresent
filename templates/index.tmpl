@@ -38,6 +38,7 @@
 	{{template "pageStart"}}
 	<!-- TODO: resize this actually -->
 	<h1>gopresent.io</h1>
+	<!--<a href="/playground">playground</a><br />-->
 	<img id="mentor-image" src="/static/gomentor.png" width="210" /><br />
 	<form action="/upload" method="post" id="upload-form" enctype="multipart/form-data">
 		<input type="file" name="filename" accept=".slide">
@@ -67,5 +68,53 @@
 	Upload completed! Your URL is:
 	<pre>{{.URL}}</pre>
 	Save it or view it <a href="{{.URL}}">here</a>. It is valid for {{.Hours}} hours.
+	{{template "pageEnd"}}
+{{end}}
+
+{{define "playground"}}
+	{{template "pageStart"}}
+	<div id="playground">
+		<textarea class="slide"></textarea>
+		<form id="hidden-form" style="visibility: hidden" target="slide-content" method="post" action="/playground">
+			<input id="post-body" type="hidden" name="slide">
+		</form>
+		<iframe name="slide-content" class="view" src="/playground"></iframe>
+	</div>
+	<script>
+		$(document).ready(function() {
+			var sendTimeout;
+			$('#playground .slide').on("input", function() {
+				clearTimeout(sendTimeout);
+				sendTimeout = setTimeout(() => {
+					$("#post-body").val($(this).val());
+					$("#hidden-form").submit();
+				}, 500);
+			});
+		});
+	</script>
+	<style>
+		html, body, #container, #playground {
+			height: 100%;
+			position: fixed;
+			width: 100%;
+			margin: 0;
+			padding: 0;
+		}
+		.slide {
+			border-width: 0 0 1px 0;
+			border-bottom: 1px solid #666;
+			text-align: left;
+			height: 40%;
+			padding: 10px 10px 0;
+			width: 100%;
+			font-size: 21px;
+		}
+		.view {
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+			border-top: none;
+		}
+	</style>
 	{{template "pageEnd"}}
 {{end}}

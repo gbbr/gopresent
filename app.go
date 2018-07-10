@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"golang.org/x/tools/present"
@@ -50,6 +51,7 @@ func NewApp(opts Options) http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("/", withError(a.handleIndex))
 	mux.Handle("/upload", withError(a.handleUpload))
+	mux.Handle("/playground", withError(a.handlePlayground))
 	mux.Handle("/slide/", withError(a.handleSlide))
 	mux.Handle("/static/", http.FileServer(http.Dir(opts.WebRoot)))
 
@@ -98,4 +100,18 @@ func (a *app) removeExpired() error {
 // handleIndex is the handler for the root page.
 func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) error {
 	return a.serveTemplate(w, "index", nil)
+}
+
+// handlePlayground serves the playground page.
+func (a *app) handlePlayground(w http.ResponseWriter, r *http.Request) error {
+	if r.Method == "POST" {
+		log.Println(r.FormValue("slide"))
+		doc, err := present.Parse(strings.NewReader(r.FormValue("slide")), "live-slide", 0)
+		if err != nil {
+			return err
+		}
+		return doc.Render(w, a.present)
+	} else {
+		return a.serveTemplate(w, "playground", nil)
+	}
 }
