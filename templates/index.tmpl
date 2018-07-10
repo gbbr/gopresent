@@ -22,6 +22,7 @@
 				margin: 20px auto 0 auto;
 			}
 		</style>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	</head>
 	<body>
 		<div id="container">
@@ -38,14 +39,26 @@
 	<!-- TODO: resize this actually -->
 	<h1>gopresent.io</h1>
 	<img id="mentor-image" src="/static/gomentor.png" width="210" /><br />
-	<form action="/upload" method="post" enctype="multipart/form-data">
+	<form action="/upload" method="post" id="upload-form" enctype="multipart/form-data">
 		<input type="file" name="filename" accept=".slide">
-		<input type="submit">
+		<input type="submit" disabled>
 	</form>
 	<div class="details">
 		Click <a href="https://godoc.org/golang.org/x/tools/present" target="_blank">here</a> to learn more
 		about the slide format used for this site.
 	</div>
+	<script>
+		$(document).ready(function() {
+			var checkFile = function() {
+				var file = $('#upload-form input[type="file"]').val();
+				if (file.length > 0) {
+					$('#upload-form input[type="submit"]').removeAttr("disabled");
+				}
+			};
+			$('#upload-form input[type="file"]').change(checkFile);
+			checkFile();
+		});
+	</script>
 	{{template "pageEnd"}}
 {{end}}
 
