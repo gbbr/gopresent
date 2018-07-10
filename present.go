@@ -13,6 +13,10 @@ import (
 	"golang.org/x/tools/present"
 )
 
+func init() {
+	present.NotesEnabled = true
+}
+
 // handleSlide is the handler for the page serving slides.
 func (a *app) handleSlide(w http.ResponseWriter, r *http.Request) error {
 	key := path.Base(r.URL.Path)
