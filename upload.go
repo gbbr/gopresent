@@ -15,7 +15,9 @@ import (
 	"golang.org/x/tools/present"
 )
 
-// handleUpload is the handler for the upload page.
+// handleUpload handles the /upload endpoint, writes any received file to disk
+// and greets the user with the upload URL. It also validates that the received
+// file is a valid parsable slide.
 func (a *app) handleUpload(w http.ResponseWriter, r *http.Request) error {
 	f, h, err := r.FormFile("filename")
 	if err != nil {

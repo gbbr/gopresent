@@ -17,7 +17,7 @@ func init() {
 	present.NotesEnabled = true
 }
 
-// handleSlide is the handler for the page serving slides.
+// handleSlide is the handler serving the rendered slide.
 func (a *app) handleSlide(w http.ResponseWriter, r *http.Request) error {
 	key := path.Base(r.URL.Path)
 	if len(key) == 0 {
