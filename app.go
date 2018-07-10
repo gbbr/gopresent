@@ -105,7 +105,6 @@ func (a *app) handleIndex(w http.ResponseWriter, r *http.Request) error {
 // handlePlayground serves the playground page.
 func (a *app) handlePlayground(w http.ResponseWriter, r *http.Request) error {
 	if r.Method == "POST" {
-		log.Println(r.FormValue("slide"))
 		doc, err := present.Parse(strings.NewReader(r.FormValue("slide")), "live-slide", 0)
 		if err != nil {
 			return err
